@@ -55,6 +55,10 @@ mlflow_client = mlflow.MlflowClient()
 
 # COMMAND ----------
 
+# MAGIC %run ./RESOURCES/VARIABLES
+
+# COMMAND ----------
+
 # register model into UC
 model_info = mlflow.sentence_transformers.log_model(
   model,
@@ -132,7 +136,3 @@ if invoke_response.status_code != 200:
   raise Exception(f'Request failed with status {invoke_response.status_code}, {invoke_response.text}')
 
 print(invoke_response.text)
-
-# COMMAND ----------
-
-

@@ -1,6 +1,6 @@
 # Databricks notebook source
 # MAGIC %md
-# MAGIC # Rename this file variables.py after you fill in your variables.
+# MAGIC ## LOAD VARIABLES
 
 # COMMAND ----------
 

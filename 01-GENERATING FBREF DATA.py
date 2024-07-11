@@ -20,6 +20,13 @@ from pyspark.sql.types import StringType, StructType, StructField, ArrayType, In
 
 # COMMAND ----------
 
+# Fetch data from Spark
+df1 = spark.sql(f"""
+                SELECT PlayerFBref, UrlFBref, TmPos FROM {catalog}.{schema}.mapped_players LIMIT 1000
+                """)
+
+# COMMAND ----------
+
 DATABRICKS_TOKEN = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().get()
 
 # COMMAND ----------
@@ -70,7 +77,7 @@ def get_scouting_report(player_name, url, attrs):
         df = pd.DataFrame()
 
     # Create the prompt for the AI model
-    prompt = f""" Do not include your disclaimer such as I apologize, but with the limited information provided, I'll have to make some assumptions. I'll create a generic scouting report, and please note that this is not based on real data. Just give me the result I want.
+    prompt = f"""Do not include your disclaimer such as I apologize, but with the limited information provided, I'll have to make some assumptions. I'll create a generic scouting report, and please note that this is not based on real data. Just give me the result I want.
     I need you to create a scouting report on {player_name}. Can you provide me with a summary of their strengths and weaknesses?
     Here is the data I have on him:
     Player: {player_name}
@@ -78,19 +85,16 @@ def get_scouting_report(player_name, url, attrs):
     Age: {age}.
     Club: {team}
     {df.to_markdown()}
-    Return the scouting report in the following format:
+    Return the scouting report in the following format (Do not skip lines):
     Scouting Report for {player_name}
     Position: 
     Age: 
     Current Team:
     Current League: 
     Overall Rating (Out of 10):
-    Strengths
-    < a paragraph of 1 to 3 strengths >
-    Weaknesses
-    < a paragraph of 1 to 3 weaknesses >
-    Summary
-    < a brief summary of the player's overall performance and if he would be beneficial to the team >
+    Strengths: < a paragraph of 1 to 3 strengths >
+    Weaknesses: < a paragraph of 1 to 3 weaknesses >
+    Summary: < a summary of the player's overall performance and if he would be beneficial to the team >
     """
 
     response = client.chat.completions.create(
@@ -105,11 +109,6 @@ def get_scouting_report(player_name, url, attrs):
     )
 
     return response.choices[0].message.content
-
-# COMMAND ----------
-
-# Fetch data from Spark
-df1 = spark.sql("SELECT PlayerFBref, UrlFBref, TmPos FROM smakubi.ai_scout.mapped_players LIMIT 100")
 
 # COMMAND ----------
 
@@ -142,4 +141,5 @@ display(result_df)
 
 # COMMAND ----------
 
-result_df.write.mode("overwrite").saveAsTable(f"{catalog}.{schema}.scouting_reports")
+table_name = "scouting_reports"
+result_df.write.mode("overwrite").option("mergeSchema", "true").saveAsTable(table_name)

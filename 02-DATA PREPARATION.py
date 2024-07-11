@@ -30,9 +30,28 @@ display(df)
 
 # COMMAND ----------
 
-df = df.withColumn("document", F.concat_ws("\n\n", F.concat_ws(" ", F.lit("player name:"), F.col("player_name")), F.concat_ws(" ", F.lit("player scouting report:"), F.col("scouting_report")), F.concat_ws(" ", F.lit("player position:"), F.col("player_position"))))
-                   
-display(df) 
+df = df.withColumn("document", 
+                   F.concat_ws("\n\n", 
+                               F.concat_ws(" ", F.lit("player name:"), F.col("player_name")), 
+                               F.concat_ws(" ", F.lit("player scouting report:"), F.col("scouting_report")), 
+                               F.concat_ws(" ", F.lit("player position:"), F.col("player_position"))
+                              )
+                  )
+
+# Replace multiple white spaces with a single space in the 'document' column
+df = df.withColumn("document", F.regexp_replace(F.col("document"), "\\s+", " "))
+
+display(df)
+
+# COMMAND ----------
+
+# Replace the pattern with an empty string using a regex that matches any name in the pattern
+df = df.withColumn("document", 
+                   F.regexp_replace(F.col("document"), 
+                                    "scouting report: Scouting Report for .* Position:", 
+                                    ""))
+
+display(df)
 
 # COMMAND ----------
 
@@ -49,10 +68,6 @@ print((df.count(), len(df.columns)))
 # COMMAND ----------
 
 tokenizer = LlamaTokenizer.from_pretrained('meta-llama/Llama-2-7b-chat')
-
-# COMMAND ----------
-
-tokenizer = LlamaTokenizer.from_pretrained('meta-llama/Llama-2-7b-chat-hf')
 
 # COMMAND ----------
 
@@ -81,7 +96,6 @@ print(f"length of Alphonso Davies document page: {len(tokenizer.encode(alphonso_
 # COMMAND ----------
 
 # UDF to determine the number of tokens using the llama-2-7b tokenizer
-
 @F.pandas_udf("long")
 def num_tokens_llama(batch_iter: Iterator[pd.Series]) -> Iterator[pd.Series]:
     login(token=hf_token)
@@ -135,7 +149,7 @@ df.write.mode("overwrite").saveAsTable(f"{catalog}.{schema}.player_documents_sil
 # delta table to use
 df1 = spark.sql(
     f"""SELECT fbref_url AS player_id, document, player_name, document_num_tokens_llama, document_num_chars, 
-document_num_words FROM {catalog}.{schema}.player_documents_silver;"""
+document_num_words FROM {catalog}.{schema}.player_documents_silver LIMIT 500;"""
 )
 
 # COMMAND ----------
@@ -211,4 +225,5 @@ display(results)
 
 # COMMAND ----------
 
-results.write.mode("overwrite").saveAsTable(f"{catalog}.{schema}.player_documents_silver_chunked")
+results_table = f"{catalog}.{schema}.player_documents_silver_chunked"
+results.write.mode("overwrite").saveAsTable(results_table)
