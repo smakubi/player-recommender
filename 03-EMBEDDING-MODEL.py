@@ -124,6 +124,7 @@ print(deploy_response.json())
 # COMMAND ----------
 
 # # Assuming you have the endpoint ID and credentials
+# endpoint_id = deploy_response.json()['endpoint_id']
 # delete_headers = {'Authorization': f'Bearer {creds.token}', 'Content-Type': 'application/json'}
 # delete_url = f'{workspace_url}/api/2.0/serving-endpoints/{endpoint_id}'
 
@@ -142,7 +143,7 @@ print(deploy_response.json())
 # COMMAND ----------
 
 # # Assuming you have the endpoint ID and credentials
-# endpoint_id = "your_endpoint_id"
+# endpoint_id = deploy_response.json()['endpoint_id']
 # update_headers = {'Authorization': f'Bearer {creds.token}', 'Content-Type': 'application/json'}
 # update_url = f'{workspace_url}/api/2.0/serving-endpoints/{endpoint_id}'
 
