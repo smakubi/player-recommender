@@ -77,25 +77,25 @@ def get_scouting_report(player_name, url, attrs):
         df = pd.DataFrame()
 
     # Create the prompt for the AI model
-    prompt = f"""Do not include your disclaimer such as I apologize, but with the limited information provided, I'll have to make some assumptions. I'll create a generic scouting report, and please note that this is not based on real data. Just give me the result I want.
-    I need you to create a scouting report on {player_name}. Can you provide me with a summary of their strengths and weaknesses?
-    Here is the data I have on him:
-    Player: {player_name}
-    Position: {position}. 
-    Age: {age}.
-    Club: {team}
-    {df.to_markdown()}
-    Return the scouting report in the following format (Do not skip lines):
-    Scouting Report for {player_name}
-    Position: 
-    Age: 
-    Current Team:
-    Current League: 
-    Overall Rating (Out of 10):
-    Strengths: < a paragraph of 1 to 3 strengths >
-    Weaknesses: < a paragraph of 1 to 3 weaknesses >
-    Summary: < a summary of the player's overall performance and if he would be beneficial to the team >
-    """
+    prompt = f"""
+                Do not include your disclaimer such as "I apologize, but with the limited information provided, I'll have to make some assumptions." Just give me the result I want. Be as objective and as accurate as possible. This is extremely important.I need you to create a scouting report on {player_name}. Provide me with their strengths and weaknesses and summary recommendations for the team.
+                Here is the data I have on this player:
+                Player: {player_name}.
+                Position: {position}. 
+                Age: {age}.
+                Club: {team}.
+                Statistics:{df.to_markdown()}
+                Return the scouting report in the following format (Do not skip lines):
+                Scouting Report for {player_name}
+                Position: {position}
+                Age:{age}
+                Current Club: {team}
+                Current League: 
+                Overall Rating (Out of 10):
+                Strengths: < a paragraph of 1 to 3 strengths. Include hard metrics and statistics from {df.to_markdown()} above>
+                Weaknesses: < a paragraph of 1 to 3 weaknesses. Include hard metrics and statistics from {df.to_markdown()} above>
+                Summary: < a summary of the player's overall performance and whether or not he would be beneficial to the team>
+            """
 
     response = client.chat.completions.create(
         messages=[
@@ -103,7 +103,9 @@ def get_scouting_report(player_name, url, attrs):
                 "role": "system",
                 "content": "You are a professional football (soccer) scout.",
             },
-            {"role": "user", "content": prompt},
+            {
+                "role": "user", 
+                "content": prompt},
         ],
         model="databricks-meta-llama-3-70b-instruct",
     )
