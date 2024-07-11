@@ -179,8 +179,8 @@ styles_and_temps = list(itertools.product(system_prompt_list, temperature_list))
 
 # set up the MLflow experiment
 
-# current_user = dbutils.notebook.entry_point.getDbutils().notebook().getContext().userName().get()
-# experiment = mlflow.set_experiment(f"/Users/{current_user}/Username-LLM-player-Bot-Prompt-Experiment")
+current_user = dbutils.notebook.entry_point.getDbutils().notebook().getContext().userName().get()
+experiment = mlflow.set_experiment(f"/Users/{current_user}/{user_name}-player-recommender-prompt-experiments")
 
 # run experiments across different prompts and temperatures
 for genre in player_query_dict.keys():
@@ -219,9 +219,9 @@ for genre in player_query_dict.keys():
                                     ]
                                   }
                                 }, 
-                          headers=headers).json()
+                          headers=headers).json()['predictions'][0]
         
-        data.append([prompt_style, temperature, prompt, model_output['predictions']])
+        data.append([prompt_style, temperature, prompt, model_output])
 
         # convert the list of prompt engineering details to pandas dataframe
         data_df = pd.DataFrame(data, columns=['prompt_style', 'temperature', 'prompt', 'model_output'])

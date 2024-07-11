@@ -86,6 +86,11 @@ print(model_version)
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC ## CREATING MODEL SERVING ENDPOINT
+
+# COMMAND ----------
+
 # serve embedding model with model serving
 # This will take 30 mins
 deploy_headers = {'Authorization': f'Bearer {creds.token}', 'Content-Type': 'application/json'}
@@ -110,6 +115,50 @@ if deploy_response.status_code != 200:
   raise Exception(f'Request failed with status {deploy_response.status_code}, {deploy_response.text}')
 
 print(deploy_response.json())
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## DELETING THE ENDPOINT
+
+# COMMAND ----------
+
+# # Assuming you have the endpoint ID and credentials
+# delete_headers = {'Authorization': f'Bearer {creds.token}', 'Content-Type': 'application/json'}
+# delete_url = f'{workspace_url}/api/2.0/serving-endpoints/{endpoint_id}'
+
+# delete_response = requests.delete(delete_url, headers=delete_headers)
+
+# if delete_response.status_code != 200:
+#   raise Exception(f'Delete failed with status {delete_response.status_code}, {delete_response.text}')
+
+# print("Endpoint deleted successfully")
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## UPDATING THE ENDPOINT
+
+# COMMAND ----------
+
+# # Assuming you have the endpoint ID and credentials
+# endpoint_id = "your_endpoint_id"
+# update_headers = {'Authorization': f'Bearer {creds.token}', 'Content-Type': 'application/json'}
+# update_url = f'{workspace_url}/api/2.0/serving-endpoints/{endpoint_id}'
+
+# # Configuration to update the endpoint
+# update_config = {
+#   "config": {
+#     "scale_to_zero_enabled": True
+#   }
+# }
+
+# update_response = requests.patch(update_url, headers=update_headers, data=json.dumps(update_config))
+
+# if update_response.status_code != 200:
+#   raise Exception(f'Update failed with status {update_response.status_code}, {update_response.text}')
+
+# print("Endpoint updated successfully:", update_response.json())
 
 # COMMAND ----------
 

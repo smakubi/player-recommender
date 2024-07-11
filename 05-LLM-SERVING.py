@@ -224,7 +224,8 @@ def update_endpoint(serving_endpoint_name, served_models):
 
 # COMMAND ----------
 
-#GPU Serving of UC pyfunc model 
+#GPU Serving of UC pyfunc model
+# This will take time to complete 45 minutes. Don't run again after its created
 served_models = [
     {
       "name": llm_model_name,

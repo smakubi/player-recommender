@@ -32,12 +32,14 @@ vsc = VectorSearchClient()
 
 # We need to make sure that the delta table we are going to use for the delta sync has Change Data Feed enabled to allow the serverless DLT job to update the VS Index with new documents as the delta table is updated. 
 spark.sql(f'''
-          ALTER TABLE {catalog}.{schema}.{sync_table_name} SET TBLPROPERTIES (delta.enableChangeDataFeed = true)
+          ALTER TABLE {catalog}.{schema}.{sync_table_name} 
+          SET TBLPROPERTIES (delta.enableChangeDataFeed = true)
           ''')
 
 # COMMAND ----------
 
 #create a Vector Search Index
+# This will take 15-20 minutes to Provision
 vsc.create_endpoint(
     name=vs_endpoint_name,
     endpoint_type="STANDARD" #PERFORMANCE_OPTIMIZED, STORAGE_OPTIMIZED
@@ -45,7 +47,7 @@ vsc.create_endpoint(
 
 # COMMAND ----------
 
-# Use the following code if you need to delete the vs endpoint created.
+## Use the following code if you need to delete the vs endpoint created.
 # vsc.delete_endpoint(f'{vs_endpoint_name}')
 
 # COMMAND ----------
@@ -56,6 +58,7 @@ vsc.list_endpoints()
 # COMMAND ----------
 
 #create a vector search sync with a delta table. This will create a serverless DLT job that will manage creating the embeddings of any new documents that are added to the delta table.
+# Provisioning - wait for inital sync
 vsc.create_delta_sync_index(
   endpoint_name=vs_endpoint_name,
   source_table_name=sync_table_fullname,
@@ -65,6 +68,13 @@ vsc.create_delta_sync_index(
   embedding_source_column="document",
   embedding_model_endpoint_name=embedding_endpoint_name
 )
+
+# COMMAND ----------
+
+## You can use this code to delete the Delta Sync Index
+# vsc.delete_index(
+#    name=vs_index_fullname,
+#    endpoint_name=vs_endpoint_name)
 
 # COMMAND ----------
 
@@ -119,7 +129,7 @@ display(results_df)
 
 # COMMAND ----------
 
-# let's take 1000 documents that don't exist in our Vector Search Index and add them to our delta table that is synced with the Vector Search Index
+# let's take 100 documents that don't exist in our Vector Search Index and add them to our delta table that is synced with the Vector Search Index
 df=spark.sql(f'''
              select 
                 document,
@@ -136,7 +146,7 @@ df=spark.sql(f'''
                 document_num_chars,
                 document_num_words 
               from {sync_table_fullname}
-            limit 1000;''')
+            limit 100;''')
 
 # COMMAND ----------
 

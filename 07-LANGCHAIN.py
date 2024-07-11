@@ -223,8 +223,6 @@ response.lower().strip()
 
 # COMMAND ----------
 
-
-
 langchain_chain = (
     PromptTemplate.from_template(
         """You are an expert in langchain. \
